@@ -15,6 +15,8 @@ private:
     VOID Start();
     VOID Stop();
 
+    static VOID EnumerateDirectory(const std::wstring& path, int depth = 0);
+
     std::wstring m_serviceName;
 
     SERVICE_STATUS m_ServiceStatus;
