@@ -5,7 +5,7 @@
 #include <vector>
 
 // ---------------------------------------------------------------------------
-// Portable host <-> network byte order (always big-endian)
+// 可移植的主机 <-> 网络字节序转换（始终为大端序）
 // ---------------------------------------------------------------------------
 inline uint32_t hton32(uint32_t host) {
 #ifdef _MSC_VER
@@ -17,7 +17,7 @@ inline uint32_t hton32(uint32_t host) {
 inline uint32_t ntoh32(uint32_t net) { return hton32(net); }
 
 // ---------------------------------------------------------------------------
-// Protocol constants
+// 协议常量
 // ---------------------------------------------------------------------------
 static const uint16_t PROTOCOL_PORT = 9443;
 
@@ -29,7 +29,7 @@ enum class MessageType : uint32_t {
 };
 
 // ---------------------------------------------------------------------------
-// Message header (packed, 8 bytes)
+// 消息头（打包，8字节）
 // ---------------------------------------------------------------------------
 #pragma pack(push, 1)
 struct MessageHeader {
@@ -51,10 +51,10 @@ static const size_t HEADER_SIZE      = sizeof(MessageHeader);
 static const size_t MAX_PAYLOAD_SIZE = 1024 * 1024;
 
 // ---------------------------------------------------------------------------
-// Pure protocol helpers (no transport dependency)
+// 纯协议辅助函数（不依赖传输层）
 // ---------------------------------------------------------------------------
 
-/// Write a network-byte-order header into @p dst (must be at least HEADER_SIZE bytes).
+/// 将网络字节序的头部写入 @p dst（至少需要 HEADER_SIZE 字节）。
 inline size_t packHeader(uint8_t* dst, MessageType type, uint32_t payloadLen) {
     MessageHeader hdr;
     hdr.type   = static_cast<uint32_t>(type);
@@ -64,5 +64,5 @@ inline size_t packHeader(uint8_t* dst, MessageType type, uint32_t payloadLen) {
     return HEADER_SIZE;
 }
 
-/// Serialise a complete message (header + payload) into a byte vector.
+/// 将完整消息（头部 + 负载）序列化为字节向量。
 std::vector<uint8_t> packMessage(MessageType type, const std::vector<uint8_t>& payload);

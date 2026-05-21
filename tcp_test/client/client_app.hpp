@@ -15,10 +15,10 @@ public:
     ClientApp(const ClientApp&) = delete;
     ClientApp& operator=(const ClientApp&) = delete;
 
-    /// Start the client (blocks until shutdown).
+    /// 启动客户端（阻塞直到关闭）。
     void run();
 
-    /// Request graceful shutdown from another thread / signal handler.
+    /// 从另一个线程/信号处理程序请求优雅关闭。
     void shutdown();
 
 private:
@@ -30,7 +30,7 @@ private:
 
     std::atomic<bool> m_running;
 
-    // Shared between stdinLoop and runLoop
+    // 在 stdinLoop 和 runLoop 之间共享
     std::mutex   m_sendMutex;
     SchannelTLS* m_tls = nullptr;
 };

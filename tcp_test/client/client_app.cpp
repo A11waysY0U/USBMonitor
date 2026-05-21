@@ -9,7 +9,7 @@
 #include <vector>
 
 // ---------------------------------------------------------------------------
-// Transport-aware protocol helpers (need a TLS channel)
+// 依赖传输层的协议辅助函数（需要 TLS 通道）
 // ---------------------------------------------------------------------------
 static bool recvFull(SchannelTLS& tls, uint8_t* buf, size_t len, int timeoutMs)
 {
@@ -26,7 +26,7 @@ static MessageHeader recvHeader(SchannelTLS& tls)
 {
     MessageHeader hdr = {};
     if (!recvFull(tls, reinterpret_cast<uint8_t*>(&hdr), HEADER_SIZE, 40000)) {
-        throw std::runtime_error("Failed to receive header");
+        throw std::runtime_error("接收消息头失败");
     }
     hdr.toHost();
     return hdr;
@@ -54,15 +54,15 @@ void ClientApp::run()
     if (inputThread.joinable()) {
         inputThread.join();
     }
-    printf("[INFO] Client stopped\n");
+    printf("[INFO] 客户端已停止\n");
 }
 
 // ---------------------------------------------------------------------------
-// stdin -> send thread
+// 标准输入 -> 发送线程
 // ---------------------------------------------------------------------------
 void ClientApp::stdinLoop()
 {
-    printf("[INPUT] Type messages (Enter to send, Ctrl+C to quit):\n");
+    printf("[INPUT] 输入消息（Enter 发送，Ctrl+C 退出）：\n");
 
     std::string line;
     while (m_running && std::getline(std::cin, line)) {
@@ -78,10 +78,10 @@ void ClientApp::stdinLoop()
                 if (ret > 0) {
                     printf("[SEND] %s\n", line.c_str());
                 } else {
-                    printf("[WARN] Send failed (not connected)\n");
+                    printf("[WARN] 发送失败（未连接）\n");
                 }
             } else {
-                printf("[WARN] Not connected, message dropped\n");
+                printf("[WARN] 未连接，消息已丢弃\n");
             }
         }
     }
@@ -89,16 +89,16 @@ void ClientApp::stdinLoop()
 }
 
 // ---------------------------------------------------------------------------
-// Connection / reconnect loop
+// 连接/重连循环
 // ---------------------------------------------------------------------------
 void ClientApp::runLoop()
 {
     while (m_running) {
         try {
             SchannelTLS tls;
-            printf("[INFO] Connecting to %s:%u ...\n", m_host.c_str(), m_port);
+            printf("[INFO] 正在连接 %s:%u ...\n", m_host.c_str(), m_port);
             tls.connect(m_host, m_port);
-            printf("[INFO] TLS handshake completed\n");
+            printf("[INFO] TLS 握手完成\n");
             
             {
                 std::lock_guard<std::mutex> lock(m_sendMutex);
@@ -116,23 +116,23 @@ void ClientApp::runLoop()
                 if (hdr.length > 0 && hdr.length <= MAX_PAYLOAD_SIZE) {
                     payload.resize(hdr.length);
                     if (!recvFull(tls, payload.data(), hdr.length, 10000)) {
-                        printf("[WARN] Failed to receive payload\n");
+                        printf("[WARN] 接收负载失败\n");
                         break;
                     }
                 }
 
                 switch (static_cast<uint32_t>(hdr.type)) {
                 case static_cast<uint32_t>(MessageType::HEARTBEAT):
-                    printf("[HEARTBEAT] <- server\n");
+                    printf("[HEARTBEAT] <- 服务器\n");
                     break;
 
                 case static_cast<uint32_t>(MessageType::DATA):
-                    printf("[DATA] from server: %.*s\n",
+                    printf("[DATA] 来自服务器: %.*s\n",
                         (int)payload.size(), payload.data());
                     break;
 
                 case static_cast<uint32_t>(MessageType::COMMAND):
-                    printf("[CMD] from server: %.*s\n",
+                    printf("[CMD] 来自服务器: %.*s\n",
                         (int)payload.size(), payload.data());
                     {
                         auto resp = packMessage(MessageType::RESPONSE,
@@ -142,7 +142,7 @@ void ClientApp::runLoop()
                     break;
 
                 case static_cast<uint32_t>(MessageType::RESPONSE):
-                    printf("[RESP] from server: %.*s\n",
+                    printf("[RESP] 来自服务器: %.*s\n",
                         (int)payload.size(), payload.data());
                     break;
 
@@ -162,7 +162,7 @@ void ClientApp::runLoop()
         }
 
         if (m_running) {
-            printf("[INFO] Reconnecting in 5 seconds...\n");
+            printf("[INFO] 5秒后重新连接...\n");
             std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     }

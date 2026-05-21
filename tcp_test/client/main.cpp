@@ -22,8 +22,8 @@ int main(int argc, char** argv)
     if (argc >= 2) host = argv[1];
     if (argc >= 3) port = static_cast<uint16_t>(std::stoi(argv[2]));
 
-    printf("=== USBMonitor TLS Client (C++ / Schannel) ===\n");
-    printf("Target: %s:%u\n", host.c_str(), port);
+    printf("=== USBMonitor TLS 客户端 (C++ / Schannel) ===\n");
+    printf("目标: %s:%u\n", host.c_str(), port);
 
     signal(SIGINT,  signalHandler);
     signal(SIGTERM, signalHandler);
